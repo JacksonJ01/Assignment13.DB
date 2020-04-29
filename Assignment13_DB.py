@@ -475,7 +475,7 @@ while menu != "END":
                             value1 = input("\nEnter the Price of the book. (For example: $25.50)"
                                            "\n>>>")
 
-                # This variable holds the
+                # This variable holds the string to modify book information
                 update_book = f"""
                 UPDATE
                   customer
@@ -493,7 +493,7 @@ while menu != "END":
                 # I wanted to check if the user entered an integer so i used another try statement
                 while value != "Randoms":
                     try:
-                        int(value)  # but i didn't want to make it an integer
+                        int(value)  # but i didn't want to save it as an integer
                         break
                     except ValueError:
                         value = input("\nEnter the ID of the Book you wish to delete"
@@ -502,6 +502,7 @@ while menu != "END":
                 # I also asked for the isbn, as a back up
                 value1 = input("\nAlright, what is the ISBN of that book?"
                                "\n>>>")
+                # Still the same ISBN checks as before
                 while value1 != "I'm starting to get tired now":
                     try:
                         checking = value1.replace("-", "")
@@ -510,6 +511,7 @@ while menu != "END":
                     except ValueError:
                         value1 = input("\nPlease enter a valid ISBN"
                                        "\n>>>")
+
                 delete_book = f"""
                 DELETE FROM 
                   book
