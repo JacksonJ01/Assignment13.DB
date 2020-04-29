@@ -29,7 +29,7 @@ def create_table(connection, query):
     try:
         cursor.execute(query)
         connection.commit()
-        print(f"The {query} query executed successfully")
+        print(f"The query executed successfully")
     except Error as oops:
         print(f"There has been an error: {oops}")
 
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS
   book_id   INTEGER PRIMARY KEY AUTOINCREMENT,
   title     TEXT    NOT NULL,
   author    TEXT    NOT NULL,
-  isbn      INTEGER NOT NULL,
+  isbn      TEXT NOT NULL,
   edition   INTEGER NOT NULL,
   price     INTEGER NOT NULL,
   publisher TEXT    NOT NULL
@@ -134,13 +134,13 @@ while menu != "END":
             # This part of the program gets the information for a new customer, then saves the information in variables
             if choice == 1:
                 first_name = input("\nWhat is the customer's First Name?"
-                                   "\n>>>")
+                                   "\n>>>").title()
 
                 last_name = input("\nLast Name?"
-                                  "\n>>>")
+                                  "\n>>>").title()
 
                 street_address = input("\nWhat is the Street Address of this customer?"
-                                       "\n>>>")
+                                       "\n>>>").title()
 
                 zip_code = input("\nWhat Zip Code is that?"
                                  "\n>>>")
@@ -157,21 +157,20 @@ while menu != "END":
                                          "\n>>>")
 
                 city = input("\nWhat City does this customer live in?"
-                             "\n>>>")
+                             "\n>>>").title()
 
-                state = input("\nAnd the State?"
-                              "\n>>>")
+                state = input("\nAnd the State? (2 letter abbreviation is fine)"
+                              "\n>>>").title()
 
                 # This variable contains the string to add this new person using the variables
                 add_person = f"""
                 INSERT INTO
                   customer (first_name, last_name, street_address, zip_code, city, state)
                 VALUES
-                ('{first_name}', {last_name}, {street_address}, {zip_code}, {city}, {state})"""
+                ('{first_name}', '{last_name}', '{street_address}', '{zip_code}', '{city}', '{state}')"""
 
                 create_table(connecting, add_person)
-                print("\nThe values have been entered."
-                      "\nI will now take you back you the menu.")
+                print("\nI will now take you back you the menu.")
 
             # This section allows the user to modify information in the person table excluding the ID. That could be bad
             elif choice == 2:
@@ -213,7 +212,8 @@ while menu != "END":
                                                           # I did this so i could maintain the data in category, while also interacting with the user
                                                           # It just replaces the underscores with spaces, then keeps the title case trend
 
-                value = input(f"What is the current {cat}?")
+                value = input(f"What does the current {cat}?"
+                              f"\n>>>").title()
 
                 # A zip code contains 5 digits. This it the only category I can check here
                 if category == "zip_code":
@@ -228,7 +228,8 @@ while menu != "END":
                             value = input("Enter a valid Zip Code please"
                                           "\n>>>")
 
-                new_val = input(f"What is the {cat} you want to change it to?")
+                new_val = input(f"What do you want to change {cat} to?"
+                                f"\n>>>").title()
 
                 # Same deal as before
                 if category == "zip_code":
@@ -248,9 +249,9 @@ while menu != "END":
                 UPDATE
                   customer
                 SET
-                  {category} = {new_val}
+                  {category} = '{new_val}'
                 WHERE
-                  {category} = {value}
+                  {category} = '{value}'
                 """
                 create_table(connecting, update_person)
 
@@ -261,12 +262,13 @@ while menu != "END":
                 while value != "Random Words":
                     try:
                         int(value)  # but i didn't want to make it an integer because i would have to typecast the variable
+                        break
                     except ValueError:
                         value = input("\nEnter the ID of the Customer you wish to delete"
                                       "\n>>>")
                 # I also asked for the customers last name, sort of as a fail safe
                 value1 = input("\nAlright, what is the Last Name of that customer?"
-                               "\n>>>")
+                               "\n>>>").title()
                 delete_person = f"""
                 DELETE FROM 
                   customer
@@ -275,21 +277,24 @@ while menu != "END":
                 """
                 create_table(connecting, delete_person)
 
+            # This simple prints the list of people in the database
             elif choice == 4:
                 every_one = "SELECT * FROM customer"
                 people = read_table(connecting, every_one)
 
                 for peeps in people:
-                    print(people)
+                    print('\n', peeps)
 
             elif choice == 5:
                 print("Back to the main menu it is.")
                 menu = "END"
 
+    # This section of the program is for the book menu
     elif choice == 2:
         menu = "ONWARD"
         while menu != 'END':
             partition()
+            # Allows the user to choose what they want to do
             choice = input("\nWhat would you like to do?"
                            "\n1. ADD new book"
                            "\n2. MODIFY a book"
@@ -297,6 +302,7 @@ while menu != "END":
                            "\n4. Print the books table"
                            "\n5. Leave this menu"
                            "\n>>>")
+            # Checks to see if the user enter a valid value
             while choice != "A Long And Random String Of Text":
                 try:
                     choice = int(choice)
@@ -309,36 +315,215 @@ while menu != "END":
                                    "\n>>>")
 
             if choice == 1:
-                book_id = input("\nWhat is the Book ID?"
-                                "\n>>>")
                 title = input("\nWhat is the Book Title?"
-                              "\n>>>")
-                author = input("\nWho is the Author of the book?"
-                               "\n>>>")
-                isbn = input("\nWhat is the ISBN of the book?"
-                             "\n>>>")
-                edition = input("\nWhat Edition is the book?"
-                                "\n>>>")
-                price = input("\nWhat is the Price of the book?"
-                              "\n>>>")
-                publisher = input("\nAnd the Publisher is?"
-                                  "\n>>>")
+                              "\n>>>").title()  # Finally, the .title() is where it belongs
 
+                author = input("\nWho is the Author of the book?"
+                               "\n>>>").title()
+
+                isbn = input("\nWhat is the ISBN of the book? (dashes(-) are included)"
+                             "\n>>>")
+                # The isbn contains - in between some of the numbers, so i will replace them with "" to check it using another variable,
+                while isbn != "How did this code get so long":
+                    try:
+                        checking = isbn.replace("-", "")
+                        int(checking)
+                        break
+                    except ValueError:
+                        isbn = input("\nPlease enter a valid ISBN"
+                                     "\n>>>")
+
+                edition = input("\nWhat Edition is the book? (Only numbers: 4th = 4) "
+                                "\n>>>")
+                # Checks if the user entered a digit
+                while edition != "Take a guess for how long this will get":
+                    try:
+                        edition = int(edition)
+                        break
+                    except ValueError:
+                        edition = input("\nPlease enter the number of the Edition. No text"
+                                        "\n>>>")
+
+                price = input("\nWhat is the Price of the book? (dollar signs($) and dots(.) are included)"
+                              "\n>>>")
+                # Uses the same method as the ISBN variable
+                while price != "Late night coding":
+                    try:
+                        cost = price.replace("$",'').replace(".", '')
+                        int(cost)
+                        break
+                    except ValueError:
+                        price = input("\nEnter the Price of the book. (For example: $12.75)"
+                                      "\n>>>")
+
+                publisher = input("\nAnd the Publisher is?"
+                                  "\n>>>").title()
+
+                # This variable contains the string to add this new person using the variables
+                add_book = f"""
+                INSERT INTO
+                  book (title, author, isbn, edition, price, publisher)
+                VALUES
+                ('{title}', '{author}', '{isbn}', '{edition}', '{price}', '{publisher}')"""
+
+                create_table(connecting, add_book)
                 print("I'm taking you back you the main menu.")
 
             elif choice == 2:
-                menu = "ONWARD"
-                update_book = """
+                category = input("\nAlright, which category of the book would you like to modify? (The Book ID will remain unchanged)" +
+                                 "\n*type the number next to the desired choice*".upper() +
+                                 "\n1. Title"
+                                 "\n2. Author"
+                                 "\n3. ISBN"
+                                 "\n4. Edition"
+                                 "\n5. Price"
+                                 "\n6. Publisher"
+                                 "\n>>>")
+                # Checks if the user entered a valid choice
+                while category != "Oof":
+                    try:
+                        category = int(category)
+                        if 7 > choice > 0:
+                            break
+                        else:
+                            int("# Forces this try statement to fail if the choice isn't 1, 2, 3, 4, 5, or 6")
+                    except ValueError:
+                        category = input("Enter 1, 2, 3, 4, 5, or 6"
+                                         "\n>>>")
+
+                if category == 1:
+                    category = "title"
+                elif category == 2:
+                    category = "author"
+                elif category == 3:
+                    category = "isbn"
+                elif category == 4:
+                    category = "edition"
+                elif category == 5:
+                    category = "price"
+                elif category == 6:
+                    category = "publisher"
+
+                # This variable will contain the information I need to change the data. This has the old data
+                value = input(f"What does the current value for the {category.title()} say?"
+                              f"\n>>>").title()
+
+                if category == 'isbn':
+                    # The isbn contains - in between some of the numbers, so i will replace them with "" to check it using another variable,
+                    while value != "I have to reuse some code":
+                        try:
+                            checking = value.replace("-", "")
+                            int(checking)
+                            break
+                        except ValueError:
+                            value = input("\nPlease enter the current and valid ISBN"
+                                          "\n>>>")
+
+                if category == "edition":
+                    # Checks if the user entered a digit
+                    while value != "Blah":
+                        try:
+                            value1 = int(value)
+                            break
+                        except ValueError:
+                            value = input("\nPlease enter the number of the current Edition. No text"
+                                          "\n>>>")
+
+                if category == 'price':
+                    # Uses the same method as the ISBN variable
+                    while value != "Brain loading":
+                        try:
+                            val = value.replace("$",'').replace(".", '')
+                            int(val)
+                            break
+                        except ValueError:
+                            value = input("\nEnter the current Price of the book. (For example: $12.75)"
+                                          "\n>>>")
+
+                # This variable will hold the new data
+                value1 = input(f"What is the {category} you want to change it to?"
+                               f"\n>>>").title()
+                if category == 'isbn':
+                    # The isbn contains - in between some of the numbers, so i will replace them with "" to check it using another variable,
+                    while value1 != "I still have to reuse some code":
+                        try:
+                            checking = value1.replace("-", "")
+                            int(checking)
+                            break
+                        except ValueError:
+                            value1 = input("\nPlease enter a valid ISBN"
+                                           "\n>>>")
+
+                if category == "edition":
+                    # Checks if the user entered a digit
+                    while value1 != "Blah Blah":
+                        try:
+                            value1 = int(value1)
+                            break
+                        except ValueError:
+                            value1 = input("\nPlease enter the number of the Edition. No text"
+                                           "\n>>>")
+
+                if category == 'price':
+                    # Uses the same method as the ISBN variable
+                    while value1 != "Brain still loading":
+                        try:
+                            val1 = value1.replace("$",'').replace(".", '')
+                            int(val1)
+                            break
+                        except ValueError:
+                            value1 = input("\nEnter the Price of the book. (For example: $25.50)"
+                                           "\n>>>")
+
+                # This variable holds the
+                update_book = f"""
+                UPDATE
+                  customer
+                SET
+                  {category} = '{value1}'
+                WHERE
+                  {category} = '{value}'
                 """
+                create_table(connecting, update_book)
+
+            # This section allows the user to delete a book from the table
             elif choice == 3:
-                menu = "ONWARD"
+                value = input("\nWhat is the Book ID of the book you want to remove?"
+                              "\n>>>")
+                # I wanted to check if the user entered an integer so i used another try statement
+                while value != "Randoms":
+                    try:
+                        int(value)  # but i didn't want to make it an integer
+                        break
+                    except ValueError:
+                        value = input("\nEnter the ID of the Book you wish to delete"
+                                      "\n>>>")
+
+                # I also asked for the isbn, as a back up
+                value1 = input("\nAlright, what is the ISBN of that book?"
+                               "\n>>>")
+                while value1 != "I'm starting to get tired now":
+                    try:
+                        checking = value1.replace("-", "")
+                        int(checking)
+                        break
+                    except ValueError:
+                        value1 = input("\nPlease enter a valid ISBN"
+                                       "\n>>>")
+                delete_book = f"""
+                DELETE FROM 
+                  book
+                WHERE
+                  book_id = '{value}' AND isbn = '{value1}'
+                """
+                create_table(connecting, delete_book)
 
             elif choice == 4:
                 all_books = "SELECT * FROM book"
                 books = read_table(connecting, all_books)
 
                 for book in books:
-                    print(book)
+                    print('\n', book)
 
             elif choice == 5:
                 print("Back to the main menu it is.")
